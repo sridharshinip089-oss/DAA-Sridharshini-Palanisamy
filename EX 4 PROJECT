@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dijkstra Algorithm Visualizer</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Segoe UI,sans-serif;
+}
+
+body{
+    background:#0f172a;
+    color:white;
+}
+
+.container{
+    width:90%;
+    max-width:1200px;
+    margin:auto;
+    padding:30px;
+}
+
+h1{
+    text-align:center;
+    color:#38bdf8;
+    margin-bottom:25px;
+}
+
+.card{
+    background:#1e293b;
+    padding:20px;
+    border-radius:15px;
+    box-shadow:0 0 20px rgba(0,0,0,.4);
+}
+
+label{
+    font-weight:bold;
+    display:block;
+    margin-top:15px;
+    margin-bottom:8px;
+}
+
+textarea{
+    width:100%;
+    height:280px;
+    background:#0f172a;
+    color:#fff;
+    border:1px solid #334155;
+    border-radius:10px;
+    padding:15px;
+    resize:none;
+    font-size:14px;
+}
+
+input{
+    width:100%;
+    padding:12px;
+    border:none;
+    border-radius:10px;
+    background:#0f172a;
+    color:white;
+    border:1px solid #334155;
+}
+
+button{
+    margin-top:20px;
+    width:100%;
+    padding:15px;
+    background:#0ea5e9;
+    border:none;
+    border-radius:10px;
+    color:white;
+    font-size:17px;
+    cursor:pointer;
+    transition:.3s;
+}
+
+button:hover{
+    background:#0284c7;
+}
+
+table{
+    width:100%;
+    margin-top:25px;
+    border-collapse:collapse;
+}
+
+th{
+    background:#0284c7;
+    padding:12px;
+}
+
+td{
+    padding:12px;
+    text-align:center;
+    border-bottom:1px solid #334155;
+}
+
+tr:nth-child(even){
+    background:#1e293b;
+}
+
+.success{
+    color:#22c55e;
+    font-weight:bold;
+}
+
+.infinity{
+    color:#ef4444;
+    font-weight:bold;
+}
+
+.footer{
+    text-align:center;
+    margin-top:25px;
+    color:#94a3b8;
+}
+</style>
+
+</head>
+<body>
+
+<div class="container">
+
+<h1>🚀 Dijkstra's Algorithm Visualizer</h1>
+
+<div class="card">
+
+<label>Graph (JSON Format)</label>
+
+<textarea id="graphInput">
+{
+  "0":[[1,4],[2,1]],
+  "1":[[3,1]],
+  "2":[[1,2],[3,5]],
+  "3":[[4,3]],
+  "4":[[5,2]],
+  "5":[]
+}
+</textarea>
+
+<label>Source Vertex</label>
+
+<input type="number" id="source" value="0">
+
+<button onclick="runDijkstra()">Run Dijkstra</button>
+
+<div id="result"></div>
+
+</div>
+
+<div class="footer">
+Designed using HTML, CSS & JavaScript
+</div>
+
+</div>
+
+<script>
+
+function dijkstra(graph, source){
+
+    let n = Object.keys(graph).length;
+
+    let dist = Array(n).fill(Infinity);
+    let prev = Array(n).fill(null);
+    let visited = Array(n).fill(false);
+
+    dist[source]=0;
+
+    while(true){
+
+        let u=-1;
+
+        for(let i=0;i<n;i++){
+
+            if(!visited[i] && (u==-1 || dist[i]<dist[u]))
+                u=i;
+
+        }
+
+        if(u==-1 || dist[u]==Infinity)
+            break;
+
+        visited[u]=true;
+
+        for(let edge of graph[u]){
+
+            let v=edge[0];
+            let w=edge[1];
+
+            if(dist[u]+w<dist[v]){
+
+                dist[v]=dist[u]+w;
+                prev[v]=u;
+
+            }
+
+        }
+
+    }
+
+    return {dist,prev};
+
+}
+
+function reconstruct(prev,source,target){
+
+    let path=[];
+
+    let node=target;
+
+    while(node!=null){
+
+        path.push(node);
+        node=prev[node];
+
+    }
+
+    path.reverse();
+
+    if(path[0]!=source)
+        return [];
+
+    return path;
+
+}
+
+function runDijkstra(){
+
+    try{
+
+        let graph=JSON.parse(document.getElementById("graphInput").value);
+
+        let source=parseInt(document.getElementById("source").value);
+
+        let ans=dijkstra(graph,source);
+
+        let html="";
+
+        html+="<table>";
+
+        html+="<tr>";
+        html+="<th>Vertex</th>";
+        html+="<th>Distance</th>";
+        html+="<th>Shortest Path</th>";
+        html+="</tr>";
+
+        for(let i=0;i<Object.keys(graph).length;i++){
+
+            let path=reconstruct(ans.prev,source,i);
+
+            html+="<tr>";
+
+            html+="<td>"+i+"</td>";
+
+            if(ans.dist[i]==Infinity)
+                html+="<td class='infinity'>INF</td>";
+            else
+                html+="<td class='success'>"+ans.dist[i]+"</td>";
+
+            html+="<td>"+(path.length?path.join(" → "):"No Path")+"</td>";
+
+            html+="</tr>";
+
+        }
+
+        html+="</table>";
+
+        document.getElementById("result").innerHTML=html;
+
+    }
+
+    catch(e){
+
+        alert("Invalid Graph JSON");
+
+    }
+
+}
+
+runDijkstra();
+
+</script>
+
+</body>
+</html>
