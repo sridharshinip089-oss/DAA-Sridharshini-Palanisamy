@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MST Visualizer - Kruskal & Prim</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Poppins',sans-serif;
+}
+
+body{
+background:#0f172a;
+color:white;
+}
+
+header{
+background:linear-gradient(90deg,#2563eb,#0ea5e9);
+padding:20px;
+text-align:center;
+font-size:28px;
+font-weight:bold;
+letter-spacing:1px;
+}
+
+.container{
+width:90%;
+margin:auto;
+padding:30px 0;
+}
+
+.card{
+background:#1e293b;
+padding:25px;
+margin-bottom:30px;
+border-radius:15px;
+box-shadow:0px 0px 20px rgba(0,0,0,.3);
+}
+
+h2{
+margin-bottom:15px;
+color:#38bdf8;
+}
+
+pre{
+background:#0f172a;
+padding:20px;
+border-radius:10px;
+overflow:auto;
+font-size:14px;
+color:#22c55e;
+line-height:1.5;
+}
+
+button{
+padding:15px 30px;
+border:none;
+background:#2563eb;
+color:white;
+font-size:18px;
+border-radius:10px;
+cursor:pointer;
+transition:.3s;
+}
+
+button:hover{
+background:#1d4ed8;
+transform:scale(1.05);
+}
+
+.output{
+background:#020617;
+padding:20px;
+border-radius:10px;
+margin-top:20px;
+font-size:17px;
+display:none;
+white-space:pre-line;
+border-left:5px solid #38bdf8;
+}
+
+.graph{
+display:flex;
+justify-content:center;
+margin-top:20px;
+}
+
+svg{
+background:white;
+border-radius:10px;
+}
+
+.node{
+fill:#2563eb;
+stroke:#fff;
+stroke-width:2;
+}
+
+.edge{
+stroke:#444;
+stroke-width:2;
+}
+
+.weight{
+fill:red;
+font-size:14px;
+font-weight:bold;
+}
+
+.label{
+fill:black;
+font-size:16px;
+font-weight:bold;
+}
+</style>
+
+</head>
+<body>
+
+<header>
+Minimum Spanning Tree using Kruskal's & Prim's Algorithm
+</header>
+
+<div class="container">
+
+<div class="card">
+<h2>Graph</h2>
+
+<div class="graph">
+
+<svg width="650" height="350">
+
+<!-- edges -->
+
+<line x1="80" y1="60" x2="220" y2="50" class="edge"/>
+<text x="145" y="40" class="weight">7</text>
+
+<line x1="80" y1="60" x2="120" y2="220" class="edge"/>
+<text x="75" y="150" class="weight">5</text>
+
+<line x1="220" y1="50" x2="390" y2="60" class="edge"/>
+<text x="300" y="40" class="weight">8</text>
+
+<line x1="220" y1="50" x2="120" y2="220" class="edge"/>
+<text x="170" y="130" class="weight">9</text>
+
+<line x1="220" y1="50" x2="370" y2="180" class="edge"/>
+<text x="290" y="120" class="weight">7</text>
+
+<line x1="390" y1="60" x2="370" y2="180" class="edge"/>
+<text x="390" y="120" class="weight">5</text>
+
+<line x1="120" y1="220" x2="370" y2="180" class="edge"/>
+<text x="230" y="170" class="weight">15</text>
+
+<line x1="120" y1="220" x2="250" y2="310" class="edge"/>
+<text x="180" y="280" class="weight">6</text>
+
+<line x1="370" y1="180" x2="250" y2="310" class="edge"/>
+<text x="305" y="255" class="weight">8</text>
+
+<line x1="370" y1="180" x2="530" y2="170" class="edge"/>
+<text x="445" y="160" class="weight">9</text>
+
+<line x1="250" y1="310" x2="530" y2="170" class="edge"/>
+<text x="390" y="260" class="weight">11</text>
+
+<!-- nodes -->
+
+<circle cx="80" cy="60" r="20" class="node"/>
+<text x="73" y="66" class="label">0</text>
+
+<circle cx="220" cy="50" r="20" class="node"/>
+<text x="213" y="56" class="label">1</text>
+
+<circle cx="390" cy="60" r="20" class="node"/>
+<text x="383" y="66" class="label">2</text>
+
+<circle cx="120" cy="220" r="20" class="node"/>
+<text x="113" y="226" class="label">3</text>
+
+<circle cx="370" cy="180" r="20" class="node"/>
+<text x="363" y="186" class="label">4</text>
+
+<circle cx="250" cy="310" r="20" class="node"/>
+<text x="243" y="316" class="label">5</text>
+
+<circle cx="530" cy="170" r="20" class="node"/>
+<text x="523" y="176" class="label">6</text>
+
+</svg>
+
+</div>
+
+</div>
+
+<div class="card">
+
+<h2>Python Code</h2>
+
+<pre id="code">
+Paste your complete Python code here.
+</pre>
+
+</div>
+
+<div class="card">
+
+<center>
+
+<button onclick="runProgram()">
+Run MST Algorithms
+</button>
+
+</center>
+
+<div id="output" class="output"></div>
+
+</div>
+
+</div>
+
+<script>
+
+document.getElementById("code").textContent=`import heapq
+
+# Your complete Python code here...
+(Kruskal and Prim implementation)
+`;
+
+function runProgram(){
+
+document.getElementById("output").style.display="block";
+
+document.getElementById("output").innerHTML=`
+=========== Kruskal's MST ===========
+
+Edge (0 - 3)     Weight : 5
+Edge (2 - 4)     Weight : 5
+Edge (3 - 5)     Weight : 6
+Edge (0 - 1)     Weight : 7
+Edge (1 - 4)     Weight : 7
+Edge (4 - 6)     Weight : 9
+
+Total MST Cost : 39
+
+
+=========== Prim's MST ===========
+
+Edge (0 - 3)     Weight : 5
+Edge (3 - 5)     Weight : 6
+Edge (0 - 1)     Weight : 7
+Edge (1 - 4)     Weight : 7
+Edge (4 - 2)     Weight : 5
+Edge (4 - 6)     Weight : 9
+
+Total MST Cost : 39
+`;
+
+}
+
+</script>
+
+</body>
+</html>
