@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Traveling Salesman Problem Solver</title>
+
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,Helvetica,sans-serif;
+}
+
+body{
+background:#050816;
+color:white;
+padding:30px;
+}
+
+.container{
+max-width:1000px;
+margin:auto;
+background:#0b1120;
+padding:25px;
+border-radius:15px;
+box-shadow:0 0 20px rgba(0,150,255,.3);
+}
+
+h1{
+text-align:center;
+color:#00c8ff;
+margin-bottom:20px;
+}
+
+button{
+display:block;
+margin:20px auto;
+padding:12px 30px;
+font-size:18px;
+background:#0077ff;
+border:none;
+border-radius:8px;
+color:white;
+cursor:pointer;
+transition:.3s;
+}
+
+button:hover{
+background:#00aaff;
+transform:scale(1.05);
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+margin-top:20px;
+}
+
+th,td{
+border:1px solid #00c8ff;
+padding:12px;
+text-align:center;
+}
+
+th{
+background:#102040;
+}
+
+td{
+background:#08101f;
+}
+
+.result{
+margin-top:30px;
+background:#111827;
+padding:20px;
+border-radius:10px;
+}
+
+.result h2{
+color:#00e5ff;
+margin-bottom:15px;
+}
+
+.path-step{
+padding:8px;
+margin:6px 0;
+background:#18263f;
+border-left:5px solid #00c8ff;
+border-radius:5px;
+}
+
+.footer{
+margin-top:25px;
+text-align:center;
+color:gray;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<h1>Traveling Salesman Problem Solver</h1>
+
+<h2>Cost Matrix</h2>
+
+<table id="matrix"></table>
+
+<button onclick="solveTSP()">Solve TSP</button>
+
+<div class="result">
+
+<h2>Result</h2>
+
+<p><strong>Optimal Tour :</strong>
+<span id="tour"></span>
+</p>
+
+<br>
+
+<p><strong>Minimum Cost :</strong>
+<span id="cost"></span>
+</p>
+
+<br>
+
+<h3>Path Verification</h3>
+
+<div id="verification"></div>
+
+</div>
+
+<div class="footer">
+Branch and Bound / Brute Force TSP Visualization
+</div>
+
+</div>
+
+<script>
+
+const INF = Infinity;
+
+const cities=["A","B","C","D","E"];
+
+const cost=[
+[INF,10,8,9,7],
+[10,INF,10,5,6],
+[8,10,INF,8,9],
+[9,5,8,INF,6],
+[7,6,9,6,INF]
+];
+
+function displayMatrix(){
+
+let table=document.getElementById("matrix");
+
+let html="<tr><th></th>";
+
+cities.forEach(c=>html+=`<th>${c}</th>`);
+
+html+="</tr>";
+
+for(let i=0;i<cities.length;i++){
+
+html+=`<tr><th>${cities[i]}</th>`;
+
+for(let j=0;j<cities.length;j++){
+
+html+=`<td>${cost[i][j]===INF?"INF":cost[i][j]}</td>`;
+
+}
+
+html+="</tr>";
+
+}
+
+table.innerHTML=html;
+
+}
+
+displayMatrix();
+
+function permutations(arr){
+
+if(arr.length===0)return [[]];
+
+let result=[];
+
+for(let i=0;i<arr.length;i++){
+
+let rest=arr.slice(0,i).concat(arr.slice(i+1));
+
+let perms=permutations(rest);
+
+for(let p of perms){
+
+result.push([arr[i],...p]);
+
+}
+
+}
+
+return result;
+
+}
+
+function solveTSP(){
+
+let n=cities.length;
+
+let cityIndex=[];
+
+for(let i=1;i<n;i++) cityIndex.push(i);
+
+let perms=permutations(cityIndex);
+
+let bestCost=Infinity;
+
+let bestPath=[];
+
+for(let perm of perms){
+
+let path=[0,...perm,0];
+
+let total=0;
+
+for(let i=0;i<n;i++){
+
+total+=cost[path[i]][path[i+1]];
+
+}
+
+if(total<bestCost){
+
+bestCost=total;
+
+bestPath=path;
+
+}
+
+}
+
+document.getElementById("tour").innerHTML=
+bestPath.map(i=>cities[i]).join(" → ");
+
+document.getElementById("cost").innerHTML=
+"<span style='color:#00ff99;font-size:24px;'>"+bestCost+"</span>";
+
+let verify="";
+
+for(let i=0;i<n;i++){
+
+let u=bestPath[i];
+
+let v=bestPath[i+1];
+
+verify+=`
+<div class="path-step">
+<b>${cities[u]}</b> → <b>${cities[v]}</b>
+&nbsp;&nbsp; Cost = ${cost[u][v]}
+</div>
+`;
+
+}
+
+document.getElementById("verification").innerHTML=verify;
+
+}
+
+</script>
+
+</body>
+</html>
