@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quick Sort Performance Comparison</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial,sans-serif;
+}
+
+body{
+    background:#0f172a;
+    color:white;
+    padding:30px;
+}
+
+.container{
+    max-width:1200px;
+    margin:auto;
+}
+
+h1{
+    text-align:center;
+    color:#38bdf8;
+    margin-bottom:20px;
+}
+
+.controls{
+    background:#1e293b;
+    padding:20px;
+    border-radius:10px;
+    margin-bottom:20px;
+}
+
+input{
+    width:100%;
+    padding:10px;
+    border:none;
+    border-radius:8px;
+    margin-top:8px;
+    font-size:16px;
+}
+
+button{
+    width:100%;
+    margin-top:15px;
+    padding:12px;
+    background:#2563eb;
+    color:white;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:17px;
+}
+
+button:hover{
+    background:#1d4ed8;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:20px;
+}
+
+th,td{
+    padding:12px;
+    border:1px solid #334155;
+    text-align:center;
+}
+
+th{
+    background:#2563eb;
+}
+
+tr:nth-child(even){
+    background:#1e293b;
+}
+
+.footer{
+    margin-top:20px;
+    text-align:center;
+    color:#94a3b8;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Quick Sort Performance Comparison</h1>
+
+<div class="controls">
+
+<label>Number of Elements</label>
+
+<input type="number" id="size" value="5000">
+
+<button onclick="runTest()">Run Comparison</button>
+
+</div>
+
+<table>
+
+<thead>
+
+<tr>
+<th>Input Type</th>
+<th>DQS Comparisons</th>
+<th>DQS Time (ms)</th>
+<th>RQS Comparisons</th>
+<th>RQS Time (ms)</th>
+</tr>
+
+</thead>
+
+<tbody id="results">
+
+</tbody>
+
+</table>
+
+<div class="footer">
+Deterministic Quick Sort vs Randomized Quick Sort
+</div>
+
+</div>
+
+<script>
+
+let comparisons=0;
+
+function partition(arr,low,high){
+
+    let pivot=arr[high];
+    let i=low-1;
+
+    for(let j=low;j<high;j++){
+
+        comparisons++;
+
+        if(arr[j]<=pivot){
+
+            i++;
+
+            [arr[i],arr[j]]=[arr[j],arr[i]];
+
+        }
+
+    }
+
+    [arr[i+1],arr[high]]=[arr[high],arr[i+1]];
+
+    return i+1;
+
+}
+
+function deterministicQuickSort(arr,low,high){
+
+    if(low<high){
+
+        let pi=partition(arr,low,high);
+
+        deterministicQuickSort(arr,low,pi-1);
+
+        deterministicQuickSort(arr,pi+1,high);
+
+    }
+
+}
+
+function randomizedQuickSort(arr,low,high){
+
+    if(low<high){
+
+        let rand=Math.floor(Math.random()*(high-low+1))+low;
+
+        [arr[rand],arr[high]]=[arr[high],arr[rand]];
+
+        let pi=partition(arr,low,high);
+
+        randomizedQuickSort(arr,low,pi-1);
+
+        randomizedQuickSort(arr,pi+1,high);
+
+    }
+
+}
+
+function runAlgorithm(fn,array){
+
+    let a=[...array];
+
+    comparisons=0;
+
+    let start=performance.now();
+
+    fn(a,0,a.length-1);
+
+    let end=performance.now();
+
+    return{
+
+        comparisons:comparisons,
+
+        time:(end-start).toFixed(2)
+
+    };
+
+}
+
+function shuffleFew(arr){
+
+    let n=arr.length;
+
+    for(let i=0;i<n/20;i++){
+
+        let a=Math.floor(Math.random()*n);
+
+        let b=Math.floor(Math.random()*n);
+
+        [arr[a],arr[b]]=[arr[b],arr[a]];
+
+    }
+
+}
+
+function runTest(){
+
+    let N=parseInt(document.getElementById("size").value);
+
+    let randomArr=[];
+
+    for(let i=0;i<N;i++)
+
+        randomArr.push(Math.floor(Math.random()*100000));
+
+    let sorted=[];
+
+    for(let i=0;i<N;i++) sorted.push(i);
+
+    let reverse=[];
+
+    for(let i=N;i>0;i--) reverse.push(i);
+
+    let nearly=[];
+
+    for(let i=0;i<N;i++) nearly.push(i);
+
+    shuffleFew(nearly);
+
+    let tests={
+
+        "Random":randomArr,
+
+        "Sorted":sorted,
+
+        "Reverse":reverse,
+
+        "Nearly Sorted":nearly
+
+    };
+
+    let html="";
+
+    for(let key in tests){
+
+        let d=runAlgorithm(deterministicQuickSort,tests[key]);
+
+        let r=runAlgorithm(randomizedQuickSort,tests[key]);
+
+        html+=`
+
+        <tr>
+
+        <td>${key}</td>
+
+        <td>${d.comparisons}</td>
+
+        <td>${d.time}</td>
+
+        <td>${r.comparisons}</td>
+
+        <td>${r.time}</td>
+
+        </tr>
+
+        `;
+
+    }
+
+    document.getElementById("results").innerHTML=html;
+
+}
+
+runTest();
+
+</script>
+
+</body>
+</html>
