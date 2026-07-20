@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Divide & Conquer Min-Max Visualizer</title>
+
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Segoe UI,Tahoma,Geneva,Verdana,sans-serif;
+}
+
+body{
+background:#0d1117;
+color:white;
+padding:30px;
+}
+
+.container{
+max-width:1200px;
+margin:auto;
+}
+
+h1{
+text-align:center;
+color:#58a6ff;
+margin-bottom:10px;
+}
+
+.subtitle{
+text-align:center;
+color:#8b949e;
+margin-bottom:30px;
+}
+
+.card{
+background:#161b22;
+padding:25px;
+border-radius:12px;
+margin-bottom:25px;
+box-shadow:0 0 15px rgba(0,0,0,.4);
+}
+
+label{
+display:block;
+margin-bottom:10px;
+font-weight:bold;
+}
+
+textarea{
+width:100%;
+height:90px;
+background:#0d1117;
+color:white;
+border:1px solid #30363d;
+border-radius:8px;
+padding:10px;
+resize:none;
+font-size:15px;
+}
+
+.buttons{
+display:flex;
+gap:15px;
+margin-top:20px;
+flex-wrap:wrap;
+}
+
+button{
+padding:12px 18px;
+border:none;
+border-radius:8px;
+cursor:pointer;
+font-size:15px;
+font-weight:bold;
+transition:.3s;
+}
+
+.generate{
+background:#238636;
+color:white;
+}
+
+.run{
+background:#1f6feb;
+color:white;
+}
+
+button:hover{
+transform:scale(1.05);
+}
+
+.result-grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+gap:20px;
+margin-top:25px;
+}
+
+.result{
+background:#0d1117;
+padding:20px;
+border-radius:10px;
+text-align:center;
+border:1px solid #30363d;
+}
+
+.result h2{
+color:#58a6ff;
+margin-bottom:10px;
+font-size:20px;
+}
+
+.result p{
+font-size:20px;
+font-weight:bold;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+margin-top:20px;
+}
+
+th,td{
+padding:12px;
+border:1px solid #30363d;
+text-align:center;
+}
+
+th{
+background:#1f6feb;
+}
+
+tr:nth-child(even){
+background:#21262d;
+}
+
+.footer{
+margin-top:30px;
+text-align:center;
+color:#8b949e;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Divide & Conquer Min-Max Visualizer</h1>
+<p class="subtitle">
+Find Minimum and Maximum using Divide & Conquer and compare with Naive Method
+</p>
+
+<div class="card">
+
+<label>Array (Comma Separated)</label>
+
+<textarea id="arrayInput">3,1,7,4,9,2,8,5,6,0</textarea>
+
+<div class="buttons">
+
+<button class="generate" onclick="generateArray()">
+Generate Random Array
+</button>
+
+<button class="run" onclick="runAlgorithms()">
+Run Algorithm
+</button>
+
+</div>
+
+<div class="result-grid">
+
+<div class="result">
+<h2>Minimum</h2>
+<p id="minValue">-</p>
+</div>
+
+<div class="result">
+<h2>Maximum</h2>
+<p id="maxValue">-</p>
+</div>
+
+<div class="result">
+<h2>D&C Comparisons</h2>
+<p id="dcComp">-</p>
+</div>
+
+<div class="result">
+<h2>Naive Comparisons</h2>
+<p id="naiveComp">-</p>
+</div>
+
+</div>
+
+</div>
+
+<div class="card">
+
+<h2 style="color:#58a6ff;">Performance Analysis</h2>
+
+<table>
+
+<thead>
+
+<tr>
+<th>Array Size</th>
+<th>D&C Comparisons</th>
+<th>Naive Comparisons</th>
+<th>Formula (3n/2 -2)</th>
+</tr>
+
+</thead>
+
+<tbody id="performanceTable">
+
+</tbody>
+
+</table>
+
+</div>
+
+<div class="footer">
+Designed using HTML, CSS & JavaScript
+</div>
+
+</div>
+
+<script>
+
+let comparisonCount=0;
+
+function minMaxDC(arr,low,high){
+
+if(low===high)
+return {min:arr[low],max:arr[low]};
+
+if(high===low+1){
+
+comparisonCount++;
+
+if(arr[low]<arr[high])
+return {min:arr[low],max:arr[high]};
+
+return {min:arr[high],max:arr[low]};
+
+}
+
+let mid=Math.floor((low+high)/2);
+
+let left=minMaxDC(arr,low,mid);
+let right=minMaxDC(arr,mid+1,high);
+
+comparisonCount++;
+
+let overallMin=(left.min<right.min)?left.min:right.min;
+
+comparisonCount++;
+
+let overallMax=(left.max>right.max)?left.max:right.max;
+
+return{
+min:overallMin,
+max:overallMax
+};
+
+}
+
+function minMaxNaive(arr){
+
+let mn=arr[0];
+let mx=arr[0];
+let comps=0;
+
+for(let i=1;i<arr.length;i++){
+
+comps++;
+
+if(arr[i]<mn)
+mn=arr[i];
+
+comps++;
+
+if(arr[i]>mx)
+mx=arr[i];
+
+}
+
+return{
+min:mn,
+max:mx,
+comps:comps
+};
+
+}
+
+function runAlgorithms(){
+
+let input=document.getElementById("arrayInput").value;
+
+let arr=input.split(",").map(Number);
+
+comparisonCount=0;
+
+let dc=minMaxDC(arr,0,arr.length-1);
+
+let dcComp=comparisonCount;
+
+let naive=minMaxNaive(arr);
+
+document.getElementById("minValue").innerHTML=dc.min;
+
+document.getElementById("maxValue").innerHTML=dc.max;
+
+document.getElementById("dcComp").innerHTML=dcComp;
+
+document.getElementById("naiveComp").innerHTML=naive.comps;
+
+performanceAnalysis();
+
+}
+
+function randomArray(size){
+
+let arr=[];
+
+for(let i=0;i<size;i++){
+
+arr.push(Math.floor(Math.random()*10000)+1);
+
+}
+
+return arr;
+
+}
+
+function performanceAnalysis(){
+
+let sizes=[10,100,1000,10000];
+
+let table="";
+
+sizes.forEach(size=>{
+
+let arr=randomArray(size);
+
+comparisonCount=0;
+
+minMaxDC(arr,0,arr.length-1);
+
+let dc=comparisonCount;
+
+let naive=minMaxNaive(arr);
+
+let formula=Math.floor((3*size)/2)-2;
+
+table+=`
+<tr>
+<td>${size}</td>
+<td>${dc}</td>
+<td>${naive.comps}</td>
+<td>${formula}</td>
+</tr>
+`;
+
+});
+
+document.getElementById("performanceTable").innerHTML=table;
+
+}
+
+function generateArray(){
+
+let arr=randomArray(10);
+
+document.getElementById("arrayInput").value=arr.join(",");
+
+}
+
+runAlgorithms();
+
+</script>
+
+</body>
+</html>
