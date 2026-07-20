@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Matrix Chain Multiplication Visualizer</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Segoe UI,Arial,sans-serif;
+}
+
+body{
+    background:#05070d;
+    color:white;
+}
+
+.container{
+    width:95%;
+    max-width:1300px;
+    margin:auto;
+    padding:30px;
+}
+
+h1{
+    text-align:center;
+    color:#4FC3F7;
+    margin-bottom:20px;
+}
+
+.card{
+    background:#111827;
+    padding:20px;
+    border-radius:15px;
+    margin-bottom:25px;
+    border:1px solid #1E3A8A;
+    box-shadow:0 0 15px rgba(0,100,255,.15);
+}
+
+label{
+    font-size:18px;
+    font-weight:bold;
+}
+
+input{
+    width:100%;
+    margin-top:10px;
+    padding:14px;
+    border:none;
+    outline:none;
+    border-radius:10px;
+    background:#1F2937;
+    color:white;
+    font-size:17px;
+}
+
+button{
+    margin-top:18px;
+    padding:13px 30px;
+    background:#2563EB;
+    color:white;
+    border:none;
+    border-radius:10px;
+    cursor:pointer;
+    font-size:18px;
+    transition:.3s;
+}
+
+button:hover{
+    background:#1D4ED8;
+    transform:scale(1.05);
+}
+
+.result{
+    margin-top:20px;
+    font-size:18px;
+    line-height:1.8;
+}
+
+.matrixBox{
+    background:#0F172A;
+    padding:15px;
+    margin-top:15px;
+    border-radius:10px;
+}
+
+table{
+    border-collapse:collapse;
+    width:100%;
+    margin-top:20px;
+}
+
+th,td{
+    border:1px solid #334155;
+    padding:10px;
+    text-align:center;
+}
+
+th{
+    background:#1D4ED8;
+}
+
+td{
+    background:#111827;
+}
+
+.highlight{
+    color:#4ADE80;
+    font-weight:bold;
+}
+
+.parent{
+    color:#FBBF24;
+    font-size:20px;
+    word-wrap:break-word;
+}
+
+.footer{
+    text-align:center;
+    margin-top:25px;
+    color:#94A3B8;
+}
+</style>
+
+</head>
+<body>
+
+<div class="container">
+
+<h1>Matrix Chain Multiplication (Dynamic Programming)</h1>
+
+<div class="card">
+
+<label>Enter Matrix Dimensions</label>
+
+<input
+id="dims"
+value="10,30,5,60,10"
+placeholder="Example: 10,30,5,60,10">
+
+<button onclick="solve()">Calculate</button>
+
+<div class="result">
+
+<div id="matrices"></div>
+
+<br>
+
+<div>
+<b>Minimum Scalar Multiplications:</b>
+<span class="highlight" id="cost"></span>
+</div>
+
+<br>
+
+<div>
+<b>Optimal Parenthesization:</b>
+<div class="parent" id="parent"></div>
+</div>
+
+</div>
+
+</div>
+
+<div class="card">
+
+<h2>DP Cost Table (m[i][j])</h2>
+
+<div id="tableArea"></div>
+
+</div>
+
+<div class="footer">
+Matrix Chain Multiplication using Dynamic Programming
+</div>
+
+</div>
+
+<script>
+
+function matrixChainOrder(dims){
+
+let n=dims.length-1;
+
+let m=[];
+let s=[];
+
+for(let i=0;i<=n;i++){
+    m[i]=[];
+    s[i]=[];
+    for(let j=0;j<=n;j++){
+        m[i][j]=0;
+        s[i][j]=0;
+    }
+}
+
+for(let l=2;l<=n;l++){
+
+    for(let i=1;i<=n-l+1;i++){
+
+        let j=i+l-1;
+
+        m[i][j]=Infinity;
+
+        for(let k=i;k<j;k++){
+
+            let cost=
+            m[i][k]+
+            m[k+1][j]+
+            dims[i-1]*dims[k]*dims[j];
+
+            if(cost<m[i][j]){
+                m[i][j]=cost;
+                s[i][j]=k;
+            }
+
+        }
+
+    }
+
+}
+
+return {m,s,n};
+
+}
+
+function printParens(s,i,j){
+
+if(i==j)
+return "A"+i;
+
+let k=s[i][j];
+
+return "("+
+printParens(s,i,k)
++
+" × "
++
+printParens(s,k+1,j)
++
+")";
+
+}
+
+function createTable(m,n){
+
+let html="<table>";
+
+html+="<tr><th></th>";
+
+for(let j=1;j<=n;j++)
+html+="<th>A"+j+"</th>";
+
+html+="</tr>";
+
+for(let i=1;i<=n;i++){
+
+html+="<tr>";
+
+html+="<th>A"+i+"</th>";
+
+for(let j=1;j<=n;j++){
+
+if(j<i)
+html+="<td>---</td>";
+
+else
+html+="<td>"+m[i][j]+"</td>";
+
+}
+
+html+="</tr>";
+
+}
+
+html+="</table>";
+
+return html;
+
+}
+
+function solve(){
+
+let dims=document
+.getElementById("dims")
+.value
+.split(",")
+.map(Number);
+
+if(dims.length<2){
+
+alert("Enter valid dimensions.");
+
+return;
+
+}
+
+let matrixHTML="<div class='matrixBox'><b>Matrix Dimensions</b><br><br>";
+
+for(let i=0;i<dims.length-1;i++){
+
+matrixHTML+="A"+(i+1)+
+" : "+
+dims[i]+
+" × "+
+dims[i+1]+
+"<br>";
+
+}
+
+matrixHTML+="</div>";
+
+document.getElementById("matrices").innerHTML=matrixHTML;
+
+let ans=matrixChainOrder(dims);
+
+document.getElementById("cost").innerHTML=
+ans.m[1][ans.n];
+
+document.getElementById("parent").innerHTML=
+printParens(ans.s,1,ans.n);
+
+document.getElementById("tableArea").innerHTML=
+createTable(ans.m,ans.n);
+
+}
+
+solve();
+
+</script>
+
+</body>
+</html>
